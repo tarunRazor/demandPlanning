@@ -10,6 +10,7 @@
     "noEmit": true,
     "strict": false,
     "jsx": "preserve",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

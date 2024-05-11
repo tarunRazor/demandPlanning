@@ -1,6 +1,5 @@
-"use client";
+import React from "react";
 
-import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -28,7 +27,7 @@ import {
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./filters";
 import FeaturedFilter from "./featured-filter";
-import { setGlobal } from "next/dist/trace";
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
