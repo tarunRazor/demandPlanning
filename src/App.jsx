@@ -51,28 +51,30 @@ function App() {
 
   const LoginWrapper = () => {
     const { loginStatus } = useContext(AppContext);
+
     if (loginStatus) {
       return <Navigate to="/" />;
     } else {
       return <Login />;
     }
   };
+  console.log(loginStatus, userGroups, "loginStatus, userGroups");
 
-  const LogOutWrapper = () => {
-    const currentUser = UserPool.getCurrentUser();
-    if (currentUser) {
-      currentUser.signOut();
+  // const LogOutWrapper = () => {
+  //   const currentUser = UserPool.getCurrentUser();
+  //   if (currentUser) {
+  //     currentUser.signOut();
 
-      setLoginStatus(false);
+  //     setLoginStatus(false);
 
-      return <Navigate to="/login" />;
-    }
-  };
+  //     return <Navigate to="/login" />;
+  //   }
+  // };
 
   return (
     <Routes>
       <Route path="/login" element={<LoginWrapper />} />
-      <Route path="/logout" element={<LogOutWrapper />} />
+      {/* <Route path="/logout" element={<LogOutWrapper />} /> */}
       <Route path="/unauthorised" element={<UnAuthorised />} />
       <Route
         path="/"
@@ -83,7 +85,9 @@ function App() {
             ) : (
               <Navigate to="/user-dashboard" />
             )
-          ) : null
+          ) : (
+            <Login />
+          )
         }
       />
 
