@@ -1,0 +1,58 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-base;
+  @apply text-body;
+  @apply font-medium;
+  font-family: "Montserrat", sans-serif;
+}
+p {
+  @apply text-body;
+  @apply font-medium;
+  @apply leading-6;
+}
+.HeaderBg {
+  background: linear-gradient(90deg, #0035e9 0%, #000926 100%);
+}
+.btn {
+  @apply font-medium;
+  @apply px-3.5;
+  @apply py-1;
+  @apply rounded-md;
+}
+.btn-primary {
+  @apply bg-primary;
+  @apply text-white;
+}
+.btn-secondary {
+  @apply bg-white;
+  @apply text-primary;
+  @apply border;
+  @apply border-primary;
+}
+h1,
+.h1 {
+  @apply text-title;
+  @apply font-bold;
+}
+
+.btn-default {
+  @apply bg-white;
+  @apply text-heading;
+  @apply border;
+  @apply border-border-subtle;
+}
+.btn-link {
+  @apply bg-white;
+  @apply text-body;
+  @apply border-none;
+  @apply underline;
+}
+.h2,
+h2 {
+  @apply text-subtitle;
+  @apply font-semibold;
+}

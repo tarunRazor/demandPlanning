@@ -1,0 +1,39 @@
+import * as React from "react"
+const ChartLines = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={18}
+    height={18}
+    fill="none"
+    {...props}
+  >
+    <rect
+      width={3}
+      height={9.75}
+      x={13.5}
+      y={5.25}
+      stroke="#2E2E2E"
+      strokeLinejoin="round"
+      rx={1}
+    />
+    <rect
+      width={3}
+      height={5.25}
+      x={7.5}
+      y={9.75}
+      stroke="#2E2E2E"
+      strokeLinejoin="round"
+      rx={1}
+    />
+    <rect
+      width={3}
+      height={8.25}
+      x={1.5}
+      y={6.75}
+      stroke="#2E2E2E"
+      strokeLinejoin="round"
+      rx={1}
+    />
+  </svg>
+)
+export default ChartLines
