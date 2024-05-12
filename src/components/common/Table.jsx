@@ -1,10 +1,25 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import StatusBadge from "./StatusBadge";
-import useDateFormat from "@/Hooks/useDateFormat";
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
+function formatDateString(dateString) {
+  if (!dateString) return "-";
+  // Check if the dateString is a Unix timestamp (a string of digits)
+  const isUnixTimestamp = /^\d+$/.test(dateString);
 
+  // Convert Unix timestamp from seconds to milliseconds if necessary
+  const date = new Date(
+    isUnixTimestamp ? parseInt(dateString, 10) * 1000 : dateString
+  );
+
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 export default function Table({
   TableData,
   TableHeaderData,
@@ -111,8 +126,6 @@ export default function Table({
                   )}
                   {TableHeaderData.map((header) => {
                     const cellValue = person[header.id];
-                    const formattedDate =
-                      header.label === "DP Date" && useDateFormat(cellValue);
                     const inputKey = `${personIdx}_${header.id}`;
                     if (
                       header.label === "Final DP QTY" &&
@@ -132,7 +145,7 @@ export default function Table({
                         header.label === "app" ? (
                           <StatusBadge status={cellValue} />
                         ) : header.label === "DP Date" ? (
-                          formattedDate
+                          formatDateString(cellValue)
                         ) : header.label === "Last Updated" ? (
                           "-"
                         ) : header.label === "Delta" ? (
