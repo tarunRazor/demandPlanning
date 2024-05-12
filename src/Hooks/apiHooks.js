@@ -35,12 +35,25 @@ const useApiEndpoints = () => {
     );
   };
 
+  const saveAsinValues = async ({
+    marketplace,
+    parentAsin,
+    upload_timestamp,
+    savedData,
+  }) => {
+    return api.post(
+      `/demand-planning/api/v1/demand-plan-uploads/${upload_timestamp}/parent-asin/${parentAsin}/marketplace/${marketplace}/update-values`,
+      savedData
+    );
+  };
+
   return {
     fetchTableauTokenUser,
     demandPlanUploadsUser,
     parentAsinUser,
     singleAsinUser,
     userDetails,
+    saveAsinValues,
   };
 };
 

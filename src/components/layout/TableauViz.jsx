@@ -16,9 +16,14 @@
 // }
 
 import React, { useEffect, useRef } from "react";
+import { useScript } from "@/Hooks/useScript";
 
 export default function TableauViz({ token, StartUrl }) {
   const initialized = useRef(false);
+  const tableauScriptUrl =
+    "https://embedding.tableauusercontent.com/tableau.embedding.3.1.0.min.js";
+
+  useScript(tableauScriptUrl);
 
   useEffect(() => {
     if (!initialized.current && token && StartUrl) {

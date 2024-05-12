@@ -51,6 +51,11 @@ h1,
   @apply border-none;
   @apply underline;
 }
+
+.btn-disabled {
+  @apply bg-background-alt;
+  @apply text-border-subtle;
+}
 .h2,
 h2 {
   @apply text-subtitle;

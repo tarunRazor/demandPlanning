@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import StatusBadge from "./StatusBadge";
-import { Input } from "../ui/input";
+import useDateFormat from "@/Hooks/useDateFormat";
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -13,11 +13,14 @@ export default function Table({
   isCheckbox,
   object,
   delta,
+  selectedAsin,
+  handleInputChange,
 }) {
   const checkbox = useRef();
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState([]);
+  const [inputValues, setInputValues] = useState({});
 
   useLayoutEffect(() => {
     const isIndeterminate =
@@ -108,6 +111,18 @@ export default function Table({
                   )}
                   {TableHeaderData.map((header) => {
                     const cellValue = person[header.id];
+                    const formattedDate =
+                      header.label === "DP Date" && useDateFormat(cellValue);
+                    const inputKey = `${personIdx}_${header.id}`;
+                    if (
+                      header.label === "Final DP QTY" &&
+                      inputValues[inputKey] === undefined
+                    ) {
+                      setInputValues((prev) => ({
+                        ...prev,
+                        [inputKey]: cellValue,
+                      }));
+                    }
                     return (
                       <td
                         key={`${personIdx}_${header.id}`}
@@ -116,13 +131,31 @@ export default function Table({
                         {header.label.toLowerCase() === "status" ||
                         header.label === "app" ? (
                           <StatusBadge status={cellValue} />
+                        ) : header.label === "DP Date" ? (
+                          formattedDate
                         ) : header.label === "Last Updated" ? (
                           "-"
                         ) : header.label === "Delta" ? (
-                          delta && delta
+                          delta && `${delta}%`
                         ) : header.label === "Final DP QTY" ? (
                           <input
-                            value={cellValue}
+                            value={inputValues[inputKey] || ""}
+                            pattern="\d*"
+                            onChange={(e) => {
+                              const newValue = e.target.value.replace(
+                                /[^0-9]/g,
+                                ""
+                              );
+                              setInputValues((prev) => ({
+                                ...prev,
+                                [inputKey]: newValue,
+                              }));
+                              handleInputChange(
+                                person["demand_plan_month"],
+                                newValue
+                              );
+                            }}
+                            type="text"
                             className="block w-full  px-3 py-1.5 border-b border-border-subtle focus-visible:ring-0 focus-visible:outline-0  focus:ring-0 text-subtitle"
                           />
                         ) : cellValue === null ? (

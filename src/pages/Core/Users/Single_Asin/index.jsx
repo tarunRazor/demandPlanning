@@ -31,41 +31,34 @@ const TableHeaderData = [
 ];
 const TableHeaderData2 = [
   { id: "demand_plan_month", label: "Month" },
-  { id: "grossSales", label: "Gross Sales" },
-  { id: "promotions", label: "Promotions" },
-  { id: "netRevenue", label: "Net revenue" },
-  { id: "ppc", label: "PPC" },
+  { id: "gross_sales_percent", label: "Gross Sales" },
+  { id: "promotions_percent", label: "Promotions" },
+  { id: "net_revenue_percent", label: "Net revenue" },
+  { id: "ppc_percent", label: "PPC" },
   { id: "cm3", label: "CM3" },
-  { id: "grossAsp", label: "Gross ASP" },
-  { id: "netAsp", label: "Net ASP" },
-  { id: "soldFy22", label: "# sold FY22" },
-  { id: "soldFy23", label: "# sold FY23" },
+  { id: "gross_asp_percent", label: "Gross ASP" },
+  { id: "net_asp_percent", label: "Net ASP" },
+  { id: "units_sold_previous_two_years", label: "# sold FY22" },
+  { id: "units_sold_previous_year", label: "# sold FY23" },
   { id: "suggested_quantity", label: "DP Suggested" },
   { id: "final_quantity", label: "Final DP QTY" },
 ];
-const TableData = [
-  {
-    parentASIN: "364374",
-    marketPlace: "US",
-    suggestedQty: "45",
-    finalQty: "45",
-    delta: "-25%",
-    assignedTo: "Tushar",
-    lastUpdated: "16.04.2024",
-    status: "Pending",
-  },
-];
+
 function SingleAsin() {
-  const { userGroups } = useContext(AppContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedAsin, setSelectedAsin] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [asinData, setAsinData] = useState(null);
   const navigate = useNavigate();
   const { parent_asin, marketplace, demand_plan_upload_timestamp } =
     useParams();
   const ASIN_PER_PAGE = 15;
-  const { fetchTableauTokenUser, singleAsinUser, parentAsinUser } =
-    useApiEndpoints();
+  const {
+    fetchTableauTokenUser,
+    singleAsinUser,
+    parentAsinUser,
+    saveAsinValues,
+  } = useApiEndpoints();
   //const { setSidebarCollapse } = useContext(AppContext);
 
   const getToken = async () => {
@@ -112,7 +105,8 @@ function SingleAsin() {
   });
 
   const asinList = asinListAll.filter(
-    (item) => item.parent_asin === parent_asin
+    (item) =>
+      item.parent_asin === parent_asin && item.marketplace === marketplace
   );
 
   const filteredAsinList = asinList.filter(
@@ -174,6 +168,46 @@ function SingleAsin() {
     enabled: !!selectedAsin,
   });
 
+  useEffect(() => {
+    if (asinDetailsData) {
+      const newData = asinDetailsData.reduce((acc, item) => {
+        const asin = item.asin || selectedAsin; // Check if `asin` is present or fallback to `selectedAsin`
+        const month = item.demand_plan_month; // Ensure this is not undefined
+        const quantity = item.final_quantity; // Ensure this is not undefined
+
+        if (asin && month && quantity != null) {
+          // Check for non-null and non-undefined values
+          if (!acc[asin]) acc[asin] = {};
+          acc[asin][month] = quantity;
+        } else {
+          console.warn("Missing data for item:", item); // Log problematic items
+        }
+
+        return acc;
+      }, {});
+      setAsinData(newData);
+    }
+  }, [asinDetailsData, selectedAsin]);
+
+  const handleInputChange = (month, newValue) => {
+    console.log(month, newValue, selectedAsin);
+    if (selectedAsin && month && newValue != null) {
+      setAsinData((prevData) => ({
+        ...prevData,
+        [selectedAsin]: {
+          ...prevData[selectedAsin],
+          [month]: parseInt(newValue, 10), // Make sure to parse integers correctly
+        },
+      }));
+    } else {
+      console.error("Invalid input data", {
+        selectedAsin,
+        month,
+        newValue,
+      });
+    }
+  };
+  console.log(asinData, "asinData after update");
   if (isLoadingAsinDetails && isLoadingAsinList) {
     return <TableSkeleton />;
   }
@@ -201,6 +235,32 @@ function SingleAsin() {
   const nextDisabled = endIndex >= allAsins.length;
   const prevDisabled = currentPage === 0;
   //Token ? setSidebarCollapse(true) : undefined;
+  const handleSave = async () => {
+    try {
+      await saveAsinQty();
+      // You can also handle post-save actions here, like showing a success message or navigating to another page
+    } catch (error) {
+      // Handle error (already logged in `saveAsinQty`)
+    }
+  };
+
+  const saveAsinQty = async () => {
+    try {
+      const response = await saveAsinValues({
+        marketplace: marketplace,
+        parentAsin: parent_asin,
+        upload_timestamp: demand_plan_upload_timestamp,
+        savedData: asinData, // Passing the updated ASIN data to the API function
+      });
+
+      console.log("Save successful:", response.data);
+      // Optionally handle any post-save logic here, like notifications or state updates
+    } catch (error) {
+      console.error("Error Saving ASIN list:", error);
+      throw error;
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between">
@@ -211,12 +271,14 @@ function SingleAsin() {
           className={"cursor-pointer  items-center flex h2"}
         >
           <LeftArrow />
-          <p className="ml-2 flex items-center">Parent {parent_asin}</p>
+          <p className="ml-2 h1 flex items-center">Parent {parent_asin}</p>
         </h2>
 
         <div className="flex gap-5">
-          <button className="btn btn-default">Save</button>
-          <button disabled className="btn btn-default ">
+          <button className="btn btn-default" onClick={handleSave}>
+            Save
+          </button>
+          <button disabled className="btn  btn-disabled ">
             Lock Submission
           </button>
         </div>
@@ -225,6 +287,7 @@ function SingleAsin() {
         <Table
           delta={delta}
           TableData={asinList}
+          selectedAsin={selectedAsin}
           // handleAccept={handleAccept}
           TableHeaderData={TableHeaderData}
           // handleReject={handleReject}
@@ -279,6 +342,7 @@ function SingleAsin() {
         )}
         {asinDetailsData && (
           <Table
+            handleInputChange={handleInputChange}
             TableData={asinDetailsData}
             TableHeaderData={TableHeaderData2}
           />
